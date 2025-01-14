@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statut de la classe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .open {
+      color: black;
+      font-size: 24px;
+    }
+    .closed {
+      color: black;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>La classe est-tu ouverte ?</h1>
+  <p id="status"></p>
+  <p id="hours"></p>
+
+  <script>
+    // Horaires d'ouverture sous forme de clé (date) et valeurs (heures d'ouverture et fermeture)
+    const schedule = {
+      "2025-01-14": { start: "12:40", end: "13:10" },
+      "2025-01-15": { start: "12:10", end: "13:10" },
+      "2025-01-20": { start: "12:40", end: "13:10" },
+      "2025-01-21": { start: "12:10", end: "13:10" },
+      "2025-01-27": { start: "12:40", end: "13:10" },
+    };
+
+    // Fonction utilitaire pour formater une date en "DD NOMDUMOIS"
+    const formatDate = (dateStr) => {
+      const months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+      const date = new Date(dateStr);
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      return `${day} ${month}`;
+    };
+
+    // Vérifie si la classe est ouverte aujourd'hui et retourne les résultats
+    const checkClassStatus = () => {
+      const now = new Date();
+      const todayDate = now.toISOString().split("T")[0]; // Formater la date actuelle en AAAA-MM-JJ
+
+      // Si le jour figure dans l'horaire de la classe
+      if (schedule[todayDate]) {
+        const { start, end } = schedule[todayDate];
+        const [startHour, startMinute] = start.split(":").map(Number);
+        const [endHour, endMinute] = end.split(":").map(Number);
+
+        // Créer des objets Date avec les heures d'ouverture et de fermeture
+        const classStartTime = new Date(now.setHours(startHour, startMinute, 0, 0));
+        const classEndTime = new Date(now.setHours(endHour, endMinute, 0, 0));
+
+        // Vérifier si l'heure actuelle est dans la plage horaire
+        const isOpen = now >= classStartTime && now <= classEndTime;
+
+        return isOpen ? {
+          status: "OUI",
+          hours: `${start} - ${end}`
+        } : {
+          status: "NON",
+          hours: ""
+        };
+      }
+
+      // Si la classe n'est pas ouverte aujourd'hui
+      return { status: "NON", hours: "" };
+    };
+
+    // Mise à jour du statut de la classe dans la page
+    const { status, hours } = checkClassStatus();
+    const statusElement = document.getElementById("status");
+    const hoursElement = document.getElementById("hours");
+
+    // Affichage du statut et des horaires
+    statusElement.textContent = `${status}`;
+    statusElement.className = status === "oui" ? "open" : "closed";
+    hoursElement.textContent = hours;
+  </script>
+</body>
+</html>
